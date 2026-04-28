@@ -4,7 +4,7 @@ import useSWR from "swr";
 import { AzuraStation } from "@/types/azuracast";
 import { AzuraCast } from "@/lib/azuracast";
 
-const REFRESH_INTERVAL = 5000; // 5s pour simuler du temps réel
+const REFRESH_INTERVAL = 15000; // 15s pour le polling des listes de stations
 
 export function useAllStations() {
     const { data, error, isLoading } = useSWR<AzuraStation[]>(
@@ -13,7 +13,7 @@ export function useAllStations() {
         {
             refreshInterval: REFRESH_INTERVAL,
             revalidateOnFocus: true,
-            dedupingInterval: 2000,
+            dedupingInterval: 10000, // Ne pas refetch si la même requête est faite dans les 10s
         }
     );
 
@@ -22,6 +22,12 @@ export function useAllStations() {
         isLoading,
         isError: error,
     };
+}
+
+export function useLiveStationsCount() {
+    const { stations, isLoading, isError } = useAllStations();
+    const liveCount = stations.filter(s => s.is_online).length;
+    return { liveCount, isLoading, isError };
 }
 
 export function useStation(shortcode: string) {

@@ -6,6 +6,7 @@ import { Search, Menu, X, Bell, Radio } from "lucide-react";
 import { useState } from "react";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { cn } from "@/lib/utils";
+import { useFavorites } from "@/lib/hooks/useFavorites"; // Import useFavorites
 
 const navLinks = [
     { href: "/", label: "Accueil", active: true },
@@ -18,6 +19,7 @@ export function Navbar() {
     const pathname = usePathname();
     const [mobileOpen, setMobileOpen] = useState(false);
     const [searchOpen, setSearchOpen] = useState(false);
+    const { favoritesCount } = useFavorites(); // Get favoritesCount
 
     return (
         <nav className="sticky top-0 z-50 glass border-b">
@@ -29,7 +31,7 @@ export function Navbar() {
                         <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-green-400 border-2 border-background animate-pulse" />
                     </div>
                     <div className="hidden sm:block">
-                        <h1 className="text-lg font-bold leading-tight tracking-tight">RadioStream</h1>
+                        <h1 className="text-lg font-bold leading-tight tracking-tight">BambaIba Radio</h1>
                         <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">Live Platform</p>
                     </div>
                 </Link>
@@ -48,6 +50,12 @@ export function Navbar() {
                             )}
                         >
                             {link.label}
+                            {/* Favorites badge for desktop */}
+                            {link.href === "/favorites" && favoritesCount > 0 && (
+                                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground animate-in fade-in zoom-in duration-300">
+                                    {favoritesCount}
+                                </span>
+                            )}
                             {pathname === link.href && (
                                 <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-8 rounded-full bg-primary" />
                             )}
@@ -115,6 +123,12 @@ export function Navbar() {
                             )}
                         >
                             {link.label}
+                            {/* Favorites badge for mobile */}
+                            {link.href === "/favorites" && favoritesCount > 0 && (
+                                <span className="ml-auto flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground animate-in fade-in zoom-in duration-300">
+                                    {favoritesCount}
+                                </span>
+                            )}
                         </Link>
                     ))}
                     <div className="pt-2 border-t mt-2">

@@ -13,32 +13,33 @@ import {
     Settings,
     HelpCircle
 } from "lucide-react";
-
-// -----------------------------
-// ITEMS
-// -----------------------------
-const mainItems = [
-    { href: "/", label: "Découvrir", icon: Home },
-    { href: "/live", label: "En Direct", icon: Radio, badge: "12" },
-    { href: "/programs", label: "Programmes", icon: Calendar },
-    { href: "/favorites", label: "Favoris", icon: Heart, count: 3 },
-];
-
-const discoverItems = [
-    { href: "/charts", label: "Top Charts", icon: TrendingUp },
-    { href: "/genres", label: "Genres", icon: Music2 },
-];
-
-const bottomItems = [
-    { href: "/settings", label: "Paramètres", icon: Settings },
-    { href: "/help", label: "Aide", icon: HelpCircle },
-];
+import { useLiveStationsCount } from "@/lib/hooks/useNowPlaying";
+import { useFavorites } from "@/lib/hooks/useFavorites";
 
 // -----------------------------
 // SIDEBAR
 // -----------------------------
 export function Sidebar() {
     const pathname = usePathname();
+    const { liveCount } = useLiveStationsCount();
+    const { favoritesCount } = useFavorites();
+
+    const mainItems = [
+        { href: "/", label: "Découvrir", icon: Home },
+        { href: "/live", label: "En Direct", icon: Radio, badge: liveCount > 0 ? liveCount.toString() : null },
+        { href: "/programs", label: "Programmes", icon: Calendar },
+        { href: "/favorites", label: "Favoris", icon: Heart, count: favoritesCount },
+    ];
+
+    const discoverItems = [
+        { href: "/charts", label: "Top Charts", icon: TrendingUp },
+        { href: "/genres", label: "Genres", icon: Music2 },
+    ];
+
+    const bottomItems = [
+        { href: "/settings", label: "Paramètres", icon: Settings },
+        { href: "/help", label: "Aide", icon: HelpCircle },
+    ];
 
     return (
         <aside className="hidden lg:flex flex-col w-64 h-[calc(100vh-4rem)] sticky top-16 border-r bg-card/50 backdrop-blur-xl">
@@ -73,13 +74,15 @@ export function Sidebar() {
                             <span className="flex-1">{item.label}</span>
 
                             {item.badge && (
-                                <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
-                  {item.badge}
-                </span>
+                                <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground animate-in fade-in zoom-in duration-300">
+                                    {item.badge}
+                                </span>
                             )}
 
-                            {item.count && (
-                                <span className="text-xs text-muted-foreground">{item.count}</span>
+                            {item.count !== undefined && item.count > 0 && (
+                                <span className="text-xs text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-full">
+                                    {item.count}
+                                </span>
                             )}
                         </Link>
                     ))}
@@ -110,23 +113,6 @@ export function Sidebar() {
                             )} />
                             {item.label}
                         </Link>
-                    ))}
-                </div>
-
-                {/* RECENT */}
-                <div className="space-y-1">
-                    <p className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                        Récemment écoutées
-                    </p>
-
-                    {["Radio Nova", "FIP", "France Inter"].map((station) => (
-                        <button
-                            key={station}
-                            className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors w-full text-left group"
-                        >
-                            <div className="h-2 w-2 rounded-full bg-green-500 group-hover:bg-green-400 transition-colors" />
-                            {station}
-                        </button>
                     ))}
                 </div>
             </div>

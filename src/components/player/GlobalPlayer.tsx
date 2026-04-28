@@ -7,6 +7,7 @@ import { VolumeSlider } from "@/components/player/VolumeSlider";
 import { cn } from "@/lib/utils";
 import { usePlayer } from "@/lib/hooks/usePlayer";
 import { Heart, X, Maximize2, Minimize2 } from "lucide-react";
+import { useFavorites } from "@/lib/hooks/useFavorites";
 
 export default function GlobalPlayer() {
     const { 
@@ -19,12 +20,14 @@ export default function GlobalPlayer() {
         setVolume 
     } = usePlayer();
     
-    const [isFavorite, setIsFavorite] = useState(false);
+    const { isFavorite, toggleFavorite } = useFavorites();
     const [expanded, setExpanded] = useState(false);
 
     if (!currentStation) return null;
 
     const coverArt = currentStation.song?.art || currentStation.art || "/default-art.jpg";
+    const currentStationShortcode = currentStation.shortcode;
+    const isCurrentStationFavorite = isFavorite(currentStationShortcode);
 
     return (
         <div className="fixed bottom-0 left-0 right-0 z-50">
@@ -122,13 +125,13 @@ export default function GlobalPlayer() {
                     {/* Actions & Volume */}
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => setIsFavorite(!isFavorite)}
+                            onClick={() => toggleFavorite(currentStationShortcode)}
                             className={cn(
                                 "hidden sm:flex h-9 w-9 items-center justify-center rounded-full transition-all hover:bg-accent",
-                                isFavorite ? "text-red-500" : "text-muted-foreground"
+                                isCurrentStationFavorite ? "text-red-500" : "text-muted-foreground"
                             )}
                         >
-                            <Heart className={cn("h-5 w-5", isFavorite && "fill-current")} />
+                            <Heart className={cn("h-5 w-5", isCurrentStationFavorite && "fill-current")} />
                         </button>
 
                         <div className="hidden md:flex items-center">
