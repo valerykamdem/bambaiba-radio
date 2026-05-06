@@ -31,7 +31,7 @@ export function StationCard({ station }: StationCardProps) {
         }
 
         // On utilise l'URL de flux direct s'il y en a une, sinon le premier mount point
-        const listenUrl = info.listen_url || station.links.listen || "";
+        const listenUrl = info.listen_url || info.mounts?.find(m => m.is_default)?.url || info.mounts?.[0]?.url || "";
         
         setCurrentStation({
             shortcode: info.shortcode,
