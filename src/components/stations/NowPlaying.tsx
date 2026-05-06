@@ -23,10 +23,10 @@ export function NowPlayingDetail({ station: initialStation }: NowPlayingProps) {
     useEffect(() => {
         const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8005/api";
         const sseUrl = `${apiBase}/live/nowplaying/${station.station.shortcode}`;
-        
+
         const connectSSE = () => {
             if (eventSourceRef.current) eventSourceRef.current.close();
-            
+
             const es = new EventSource(sseUrl);
             eventSourceRef.current = es;
 
@@ -85,7 +85,7 @@ export function NowPlayingDetail({ station: initialStation }: NowPlayingProps) {
             setCurrentStation({
                 shortcode: station.station.shortcode,
                 name: station.station.name,
-                listenUrl: station.station.listen_url || station.links.listen || "",
+                listenUrl: station.station.listen_url || "",
                 art: current?.art,
                 song: current ? {
                     title: current.title,
@@ -177,7 +177,7 @@ export function NowPlayingDetail({ station: initialStation }: NowPlayingProps) {
                                 )}
                             >
                                 {isThisPlaying ? (
-                                    <><Pause className="h-5 w-5 fill-current" /> ARRÊTER L'ÉCOUTE</>
+                                    <><Pause className="h-5 w-5 fill-current" /> ARRÊTER L` ÉCOUTE</>
                                 ) : (
                                     <><Play className="h-5 w-5 fill-current" /> ÉCOUTER MAINTENANT</>
                                 )}
