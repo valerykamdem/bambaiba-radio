@@ -90,6 +90,10 @@ export interface SongHistory {
     streamer: string | null;
     is_request: boolean;
     song: Song;
+    listeners_start?: number | null;
+    listeners_end?: number | null;
+    delta_total?: number | null;
+    is_visible?: boolean;
 }
 
 export interface Song {

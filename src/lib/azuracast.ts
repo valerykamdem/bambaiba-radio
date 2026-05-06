@@ -36,8 +36,17 @@ export const AzuraCast = {
         fetcher<AzuraStation>(`/nowplaying/${shortcode}`),
 
     // Historique d'une station
-    getStationHistory: (shortcode: string) =>
-        fetcher<SongHistory[]>(`/station/${shortcode}/history`),
+    getStationHistory: (shortcode: string, params?: { start?: string; end?: string }) => {
+        const searchParams = new URLSearchParams();
+
+        if (params?.start) searchParams.set("start", params.start);
+        if (params?.end) searchParams.set("end", params.end);
+
+        const queryString = searchParams.toString();
+        return fetcher<SongHistory[]>(
+            `/station/${shortcode}/history${queryString ? `?${queryString}` : ""}`
+        );
+    },
 
     // Programme/Schedule
     getStationSchedule: (shortcode: string) =>

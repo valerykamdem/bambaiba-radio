@@ -1,40 +1,104 @@
 "use client";
 
-import { useState } from "react";
-// lucide-react icons replaced with emoji fallbacks for compatibility
+import { useMemo, useState } from "react";
+import useSWR from "swr";
 import { useAllStations } from "@/lib/hooks/useNowPlaying";
-import {ChevronRight, Clock, Radio} from "lucide-react";
+import { AzuraCast } from "@/lib/azuracast";
+import { StationSchedule } from "@/types/azuracast";
+import { CalendarClock, Clock, Hourglass, Mic2, Radio } from "lucide-react";
 
 const DAYS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
-const HOURS = Array.from({ length: 24 }, (_, i) => `${i.toString().padStart(2, "0")}:00`);
+
+type ProgramEntry = StationSchedule & {
+    stationName: string;
+    stationShortcode: string;
+};
+
+function getCurrentDayIndex() {
+    return (new Date().getDay() + 6) % 7;
+}
+
+function getScheduleDayIndex(timestamp: number) {
+    return (new Date(timestamp * 1000).getDay() + 6) % 7;
+}
+
+function formatTime(timestamp: number) {
+    return new Intl.DateTimeFormat("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit",
+    }).format(new Date(timestamp * 1000));
+}
+
+function useProgramSchedules(
+    stations: ReturnType<typeof useAllStations>["stations"],
+    selectedStation: string | null
+) {
+    const stationKeys = useMemo(
+        () => stations.map((station) => station.station.shortcode).sort(),
+        [stations]
+    );
+
+    const { data, error, isLoading } = useSWR<ProgramEntry[]>(
+        stationKeys.length ? ["program-schedules", selectedStation ?? "all", stationKeys.join("|")] : null,
+        async () => {
+            const selectedStations = selectedStation
+                ? stations.filter((station) => station.station.shortcode === selectedStation)
+                : stations;
+
+            const schedules = await Promise.allSettled(
+                selectedStations.map(async (station) => {
+                    const stationSchedule = await AzuraCast.getStationSchedule(station.station.shortcode);
+
+                    return stationSchedule.map((program) => ({
+                        ...program,
+                        stationName: station.station.name,
+                        stationShortcode: station.station.shortcode,
+                    }));
+                })
+            );
+
+            return schedules.flatMap((result) => (result.status === "fulfilled" ? result.value : []));
+        },
+        {
+            refreshInterval: 60000,
+            revalidateOnFocus: true,
+            dedupingInterval: 30000,
+        }
+    );
+
+    return {
+        schedules: data ?? [],
+        isLoading,
+        isError: error,
+    };
+}
 
 export default function ProgramsPage() {
-    const { stations } = useAllStations();
-    const [selectedDay, setSelectedDay] = useState(0);
+    const { stations, isLoading: isLoadingStations } = useAllStations();
+    const [selectedDay, setSelectedDay] = useState(getCurrentDayIndex);
     const [selectedStation, setSelectedStation] = useState<string | null>(null);
+    const { schedules, isLoading: isLoadingSchedules } = useProgramSchedules(stations, selectedStation);
 
-    // Données simulées de programme - à remplacer par API AzuraCast schedule
-    const schedule = [
-        { time: "06:00", title: "Le Réveil", host: "Marie L.", type: "info" },
-        { time: "09:00", title: "Morning Show", host: "Team Matinale", type: "talk" },
-        { time: "12:00", title: "Journal de Midi", host: "Équipe Info", type: "info" },
-        { time: "14:00", title: "After Work", host: "DJ Mike", type: "music" },
-        { time: "18:00", title: "Drive Time", host: "Sarah & Tom", type: "talk" },
-        { time: "21:00", title: "Late Night", host: "DJ Shadow", type: "music" },
-        { time: "00:00", title: "Nuit Blanche", host: "Auto", type: "music" },
-    ];
+    const daySchedules = useMemo(
+        () =>
+            schedules
+                .filter((item) => getScheduleDayIndex(item.start_timestamp) === selectedDay)
+                .sort((a, b) => a.start_timestamp - b.start_timestamp),
+        [schedules, selectedDay]
+    );
+
+    const isLoading = isLoadingStations || isLoadingSchedules;
+    const hasPrograms = daySchedules.length > 0;
 
     return (
         <div className="space-y-8">
-            {/* Header */}
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Grille des Programmes</h1>
                 <p className="mt-2 text-muted-foreground">
-                    Découvrez les émissions de la semaine sur toutes nos stations
+                    Les émissions publiées depuis l&apos;API de la radio
                 </p>
             </div>
 
-            {/* Station Selector */}
             <div className="flex gap-3 overflow-x-auto pb-2">
                 <button
                     onClick={() => setSelectedStation(null)}
@@ -62,7 +126,6 @@ export default function ProgramsPage() {
                 ))}
             </div>
 
-            {/* Day Selector */}
             <div className="flex gap-1 rounded-xl bg-secondary p-1">
                 {DAYS.map((day, index) => (
                     <button
@@ -79,69 +142,63 @@ export default function ProgramsPage() {
                 ))}
             </div>
 
-            {/* Schedule Grid */}
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
-                <div className="grid grid-cols-[80px_1fr] divide-y divide-border">
-                    {schedule.map((item, index) => (
-                        <div key={index} className="contents">
-                            {/* Time Column */}
-                            <div className="flex items-center justify-center border-r border-border bg-secondary/30 px-4 py-4">
-                                <div className="text-center">
-                                    <Clock className="h-4 w-4 mx-auto mb-1 text-muted-foreground" />
-                                    <span className="text-sm font-semibold">{item.time}</span>
+            {isLoading ? (
+                <PendingPrograms
+                    title="Chargement de la grille"
+                    description="Nous récupérons les programmes depuis l'API."
+                />
+            ) : hasPrograms ? (
+                <div className="overflow-hidden rounded-2xl border border-border bg-card">
+                    <div className="grid grid-cols-[96px_1fr] divide-y divide-border">
+                        {daySchedules.map((item) => (
+                            <div key={`${item.stationShortcode}-${item.id}-${item.start_timestamp}`} className="contents">
+                                <div className="flex items-center justify-center border-r border-border bg-secondary/30 px-4 py-4">
+                                    <div className="text-center">
+                                        <Clock className="mx-auto mb-1 h-4 w-4 text-muted-foreground" />
+                                        <span className="text-sm font-semibold">
+                                            {formatTime(item.start_timestamp)}
+                                        </span>
+                                        <span className="mt-0.5 block text-xs text-muted-foreground">
+                                            {formatTime(item.end_timestamp)}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-4 px-4 py-4 transition-colors hover:bg-accent/50">
+                                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                        {item.is_dj ? <Mic2 className="h-5 w-5" /> : <CalendarClock className="h-5 w-5" />}
+                                    </div>
+
+                                    <div className="min-w-0 flex-1">
+                                        <h3 className="truncate font-semibold text-foreground">{item.name}</h3>
+                                        <p className="text-sm text-muted-foreground">
+                                            {item.stationName}
+                                            {item.description ? ` • ${item.description}` : ""}
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* Program Column */}
-                            <div className="flex items-center gap-4 px-4 py-4 hover:bg-accent/50 transition-colors group cursor-pointer">
-                                <div className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${
-                                    item.type === "music" ? "bg-purple-500/10 text-purple-500" :
-                                        item.type === "talk" ? "bg-blue-500/10 text-blue-500" :
-                                            "bg-orange-500/10 text-orange-500"
-                                }`}>
-                                {item.type === "music" ? <span role="img" aria-label="music" style={{fontSize:14}}>🎵</span> :
-                                    item.type === "talk" ? <span role="img" aria-label="talk" style={{fontSize:14}}>🎙️</span> :
-                                        <span role="img" aria-label="time" style={{fontSize:14}}>🕒</span>}
-                                </div>
-
-                                <div className="flex-1 min-w-0">
-                                    <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                                        {item.title}
-                                    </h3>
-                                    <p className="text-sm text-muted-foreground">
-                                        Présenté par {item.host}
-                                    </p>
-                                </div>
-
-                                <ChevronRight className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
+            ) : (
+                <PendingPrograms
+                    title="Programmes en attente"
+                    description="Aucun programme n'est disponible via l'API pour cette sélection."
+                />
+            )}
+        </div>
+    );
+}
+
+function PendingPrograms({ title, description }: { title: string; description: string }) {
+    return (
+        <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-secondary text-muted-foreground">
+                <Hourglass className="h-7 w-7" />
             </div>
-
-            {/* Live Now Indicator */}
-            <div className="rounded-2xl bg-gradient-to-r from-primary/10 via-accent to-background border border-primary/20 p-6">
-                <div className="flex items-center gap-3 mb-3">
-          <span className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary" />
-          </span>
-                    <span className="text-sm font-semibold text-primary">EN CE MOMENT</span>
-                </div>
-                <h2 className="text-xl font-bold">Morning Show — Épisode 245</h2>
-                <p className="text-muted-foreground mt-1">
-                    L&apos;actualité musicale et les tendances du moment avec la Team Matinale
-                </p>
-                <div className="mt-4 flex gap-2">
-                    <button className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
-                        Écouter en direct
-                    </button>
-                    <button className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium hover:bg-accent transition-colors">
-                        Plus d&apos;infos
-                    </button>
-                </div>
-            </div>
+            <h2 className="text-xl font-semibold">{title}</h2>
+            <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">{description}</p>
         </div>
     );
 }
