@@ -109,6 +109,7 @@ export default function FavoritesPage() {
                                     src={station.now_playing?.song?.art || "/default-art.jpg"}
                                     alt={station.station.name}
                                     fill
+                                    unoptimized
                                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60" />

@@ -37,7 +37,7 @@ export default function GlobalPlayer() {
                     <div className="mx-auto max-w-2xl flex flex-col items-center text-center">
                         <div className="relative h-64 w-64 md:h-80 md:w-80 rounded-2xl overflow-hidden shadow-2xl mb-8 group">
                             <Image
-                                src={coverArt}
+                                src={coverArt || "/default-art.jpg"}
                                 alt={currentStation.name}
                                 fill
                                 unoptimized

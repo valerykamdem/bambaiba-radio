@@ -23,6 +23,7 @@ export async function StationHistory({ shortcode }: { shortcode: string }) {
                                 alt={item.song.title}
                                 fill
                                 className="object-cover"
+                                unoptimized
                             />
                         </div>
 

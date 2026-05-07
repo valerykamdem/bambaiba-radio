@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: "/api/azura/:path*",
-                destination: "http://192.168.1.103:8005/api/:path*",
+                destination: "http://localhost:8005/api/:path*",
             },
         ];
     },
