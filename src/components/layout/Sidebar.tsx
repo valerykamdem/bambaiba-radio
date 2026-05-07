@@ -33,12 +33,12 @@ export function Sidebar() {
 
     const discoverItems = [
         { href: "/charts", label: "Top Charts", icon: TrendingUp },
-        { href: "/genres", label: "Genres", icon: Music2 },
+        // { href: "/genres", label: "Genres", icon: Music2 },
     ];
 
     const bottomItems = [
         { href: "/settings", label: "Paramètres", icon: Settings },
-        { href: "/help", label: "Aide", icon: HelpCircle },
+        // { href: "/help", label: "Aide", icon: HelpCircle },
     ];
 
     return (
