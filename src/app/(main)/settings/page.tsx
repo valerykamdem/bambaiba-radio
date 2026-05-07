@@ -110,7 +110,7 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">Serveur AzuraCast</p>
                     <code className="block rounded-lg bg-secondary px-3 py-2 text-sm font-mono">
-                        http://localhost:8005/api
+
                     </code>
                     <div className="flex items-center gap-2 mt-2">
                         <span className="h-2 w-2 rounded-full bg-green-500" />

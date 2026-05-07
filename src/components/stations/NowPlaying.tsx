@@ -181,7 +181,7 @@ export function NowPlayingDetail({ station: initialStation }: NowPlayingProps) {
                                 )}
                             >
                                 {isThisPlaying ? (
-                                    <><Pause className="h-5 w-5 fill-current" /> ARRÊTER L'ÉCOUTE</>
+                                    <><Pause className="h-5 w-5 fill-current" /> ARRÊTER L&#39;ÉCOUTE</>
                                 ) : (
                                     <><Play className="h-5 w-5 fill-current" /> ÉCOUTER MAINTENANT</>
                                 )}
