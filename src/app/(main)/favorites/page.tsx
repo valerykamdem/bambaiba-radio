@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Heart, Trash2, Headphones, Play, Pause, Activity, Share2 } from "lucide-react";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { usePlayer } from "@/lib/hooks/usePlayer";
+import {AzuraStation} from "@/types/azuracast";
 
 export default function FavoritesPage() {
     const { stations, isLoading: isStationsLoading } = useAllStations();
@@ -22,7 +23,7 @@ export default function FavoritesPage() {
         return fav ? new Date(fav.addedAt).toLocaleDateString("fr-FR") : "";
     };
 
-    const handlePlayStation = (station: any) => {
+    const handlePlayStation = (station: AzuraStation) => {
         const isCurrent = currentStation?.shortcode === station.station.shortcode;
         if (isCurrent) {
             togglePlay();
@@ -30,7 +31,7 @@ export default function FavoritesPage() {
             setCurrentStation({
                 shortcode: station.station.shortcode,
                 name: station.station.name,
-                listenUrl: station.station.listen_url || station.links.listen || "",
+                listenUrl: station.station.listen_url || "",
                 art: station.now_playing?.song?.art,
                 song: station.now_playing?.song ? {
                     title: station.now_playing.song.title,
@@ -78,7 +79,7 @@ export default function FavoritesPage() {
                     </div>
                     <h3 className="text-xl font-bold">Votre collection est vide</h3>
                     <p className="mt-2 text-muted-foreground max-w-sm">
-                        Vous n'avez pas encore ajouté de stations à vos favoris. Parcourez la liste pour trouver vos radios préférées.
+                        Vous n&#39;avez pas encore ajouté de stations à vos favoris. Parcourez la liste pour trouver vos radios préférées.
                     </p>
                     <Link
                         href="/"
@@ -112,7 +113,7 @@ export default function FavoritesPage() {
                                     unoptimized
                                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60" />
+                                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-60" />
                                 
                                 <button
                                     onClick={() => handlePlayStation(station)}
