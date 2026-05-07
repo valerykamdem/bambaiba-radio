@@ -8,20 +8,13 @@ interface StationGridProps {
     stations: AzuraStation[];
     columns?: 2 | 3 | 4 | 5;
     className?: string;
-    playingStation?: string | null;
-    onPlayStation?: (shortcode: string, listenUrl: string) => void;
 }
 
 export function StationGrid({
     stations,
     columns = 4,
     className,
-    playingStation,
-    onPlayStation,
 }: StationGridProps) {
-    // Prevent unused prop errors when props are provided by parent components
-    void playingStation;
-    void onPlayStation;
     const gridCols = {
         2: "sm:grid-cols-2",
         3: "sm:grid-cols-2 lg:grid-cols-3",

@@ -113,8 +113,6 @@ export default function HomeClient({ initialStations }: { initialStations: any[]
 
                 <StationGrid
                     stations={sortedStations}
-                    playingStation={currentStation?.shortcode || null}
-                    onPlayStation={handlePlay}
                     columns={4}
                 />
             </section>

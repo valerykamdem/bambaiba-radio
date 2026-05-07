@@ -1,6 +1,6 @@
 import { AzuraStation, SongHistory, StationSchedule } from "@/types/azuracast";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8005/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://100.81.7.127:8005/api";
 const API_KEY = process.env.AZURACAST_API_KEY;
 
 class AzuraAPIError extends Error {

@@ -42,8 +42,8 @@ export function Sidebar() {
     ];
 
     return (
-        <aside className="hidden lg:flex flex-col w-64 h-[calc(100vh-4rem)] sticky top-16 border-r bg-card/50 backdrop-blur-xl">
-            <div className="flex-1 overflow-y-auto py-6 px-3 space-y-6">
+        <aside className="hidden lg:flex flex-col w-64 h-[calc(100vh-4rem)] sticky top-16 border-r border-border bg-card/70 backdrop-blur-xl">
+            <div className="flex-1 overflow-y-auto py-6 px-4 space-y-6">
 
                 {/* MAIN */}
                 <div className="space-y-1">
@@ -58,15 +58,15 @@ export function Sidebar() {
                             className={cn(
                                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group",
                                 pathname === item.href
-                                    ? "bg-primary/10 text-primary shadow-sm"
+                                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
                             )}
                         >
                             <item.icon
                                 className={cn(
-                                    "h-4 w-4 transition-colors",
+                                    "h-5 w-5 transition-colors",
                                     pathname === item.href
-                                        ? "text-primary"
+                                        ? "text-primary-foreground"
                                         : "text-muted-foreground group-hover:text-foreground"
                                 )}
                             />
@@ -74,13 +74,13 @@ export function Sidebar() {
                             <span className="flex-1">{item.label}</span>
 
                             {item.badge && (
-                                <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground animate-in fade-in zoom-in duration-300">
+                                <span className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-white text-primary px-1.5 text-[10px] font-bold animate-in fade-in zoom-in duration-300">
                                     {item.badge}
                                 </span>
                             )}
 
                             {item.count !== undefined && item.count > 0 && (
-                                <span className="text-xs text-muted-foreground bg-secondary px-1.5 py-0.5 rounded-full">
+                                <span className="text-xs font-semibold text-primary-foreground bg-primary px-2 py-0.5 rounded-full animate-in fade-in zoom-in duration-300">
                                     {item.count}
                                 </span>
                             )}
@@ -101,14 +101,14 @@ export function Sidebar() {
                             className={cn(
                                 "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group",
                                 pathname === item.href
-                                    ? "bg-primary/10 text-primary"
+                                    ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
                             )}
                         >
                             <item.icon className={cn(
-                                "h-4 w-4 transition-colors",
+                                "h-5 w-5 transition-colors",
                                 pathname === item.href
-                                    ? "text-primary"
+                                    ? "text-primary-foreground"
                                     : "text-muted-foreground group-hover:text-foreground"
                             )} />
                             {item.label}
@@ -118,14 +118,24 @@ export function Sidebar() {
             </div>
 
             {/* BOTTOM */}
-            <div className="border-t p-3 space-y-1">
+            <div className="border-t border-border p-4 space-y-1">
                 {bottomItems.map((item) => (
                     <Link
                         key={item.href}
                         href={item.href}
-                        className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors group"
+                        className={cn(
+                            "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 group",
+                            pathname === item.href
+                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                        )}
                     >
-                        <item.icon className="h-4 w-4 transition-colors group-hover:text-foreground" />
+                        <item.icon className={cn(
+                            "h-5 w-5 transition-colors",
+                            pathname === item.href
+                                ? "text-primary-foreground"
+                                : "text-muted-foreground group-hover:text-foreground"
+                        )} />
                         {item.label}
                     </Link>
                 ))}
