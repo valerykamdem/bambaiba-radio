@@ -7,6 +7,11 @@ const nextConfig: NextConfig = {
     reactCompiler: false,            // React Compiler disabled (minimal, safe default)
     images: {
         remotePatterns: [
+        {
+                        protocol: "https",
+                        hostname: "azuracast.nexitgen.de", // Ton sous-domaine AzuraCast
+                        pathname: "/**",
+                    },
             {
                 protocol: "http",
                 hostname: "localhost",
@@ -19,7 +24,9 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: "/api/azura/:path*",
-                destination: "http://localhost:8080/api/:path*",
+                destination: isProd
+                                    ? "http://127.0.0.1:8080/api/:path*" // En interne sur le Gen8
+                                    : "http://localhost:8080/api/:path*",
             },
         ];
     },
