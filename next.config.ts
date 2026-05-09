@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
             {
                 protocol: "http",
                 hostname: "localhost",
-                port: "8005",
+                port: "8080",
                 pathname: "/**",
             },
         ],
@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
         return [
             {
                 source: "/api/azura/:path*",
-                destination: "http://localhost:8005/api/:path*",
+                destination: "http://localhost:8080/api/:path*",
             },
         ];
     },
